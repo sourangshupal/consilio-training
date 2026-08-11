@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chunking strategies &middot; Comparison</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --color-paper:#f5f5f5; --color-ink:#2d3142; --color-muted:#4f5d75; --color-accent:#eb6c36;
+      --font-sans:'Geist',system-ui,sans-serif; --font-serif:'Instrument Serif',serif; --font-mono:'Geist Mono',ui-monospace,monospace; }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:3rem 2rem; }
+    .frame { max-width:1200px; width:100%; }
+    .eyebrow { font-family:var(--font-mono); font-size:.66rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--color-muted); margin-bottom:.5rem; }
+    h1 { font-family:var(--font-serif); font-size:clamp(1.5rem,2.4vw + .75rem,2rem); font-weight:400; letter-spacing:-.02em; line-height:1.15; margin-bottom:1.5rem; }
+    svg { width:100%; min-width:900px; display:block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Comparison &middot; Diagram Design</p>
+    <h1>Chunking strategies &mdash; same document, five boundaries</h1>
+    <svg viewBox="0 0 1000 440" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/></pattern></defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+
+      <!-- Fixed-size -->
+      <rect x="72" y="80" width="56" height="220" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <line x1="72" y1="124" x2="128" y2="124" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="72" y1="168" x2="128" y2="168" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="72" y1="212" x2="128" y2="212" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="72" y1="256" x2="128" y2="256" stroke="#4f5d75" stroke-width="1"/>
+      <text x="100" y="320" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Fixed-size</text>
+      <text x="100" y="334" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle">equal N tokens</text>
+
+      <!-- Sentence-based -->
+      <rect x="252" y="80" width="56" height="220" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <line x1="252" y1="110" x2="308" y2="110" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="252" y1="164" x2="308" y2="164" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="252" y1="230" x2="308" y2="230" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="252" y1="270" x2="308" y2="270" stroke="#4f5d75" stroke-width="1"/>
+      <text x="280" y="320" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Sentence-based</text>
+      <text x="280" y="334" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle">split on . ! ?</text>
+
+      <!-- Recursive (focal) -->
+      <rect x="432" y="80" width="56" height="220" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+      <line x1="432" y1="150" x2="488" y2="150" stroke="#eb6c36" stroke-width="1.4"/>
+      <line x1="432" y1="230" x2="488" y2="230" stroke="#eb6c36" stroke-width="1.4"/>
+      <line x1="432" y1="190" x2="488" y2="190" stroke="#eb6c36" stroke-width="0.8" stroke-dasharray="3,3"/>
+      <text x="460" y="320" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Recursive</text>
+      <text x="460" y="334" fill="#eb6c36" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle">paragraph &rarr; sentence</text>
+
+      <!-- Semantic -->
+      <rect x="612" y="80" width="56" height="220" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="612" y="80" width="56" height="76" fill="#7c8f6f" fill-opacity="0.18"/>
+      <rect x="612" y="156" width="56" height="98" fill="#5e7a9b" fill-opacity="0.18"/>
+      <rect x="612" y="254" width="56" height="46" fill="#b8915a" fill-opacity="0.18"/>
+      <line x1="612" y1="156" x2="668" y2="156" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="612" y1="254" x2="668" y2="254" stroke="#4f5d75" stroke-width="1"/>
+      <text x="640" y="320" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Semantic</text>
+      <text x="640" y="334" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle">by topic shift</text>
+
+      <!-- Structure-aware -->
+      <rect x="792" y="80" width="56" height="220" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <line x1="792" y1="120" x2="848" y2="120" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="792" y1="196" x2="848" y2="196" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="792" y1="252" x2="848" y2="252" stroke="#4f5d75" stroke-width="1"/>
+      <text x="856" y="124" fill="#4f5d75" font-size="7" font-family="'Geist Mono',monospace">&sect;2</text>
+      <text x="856" y="200" fill="#4f5d75" font-size="7" font-family="'Geist Mono',monospace">&sect;3</text>
+      <text x="856" y="256" fill="#4f5d75" font-size="7" font-family="'Geist Mono',monospace">&sect;4</text>
+      <text x="820" y="320" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Structure-aware</text>
+      <text x="820" y="334" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle">on headers / clauses</text>
+
+      <line x1="40" y1="368" x2="960" y2="368" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <text x="40" y="384" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.18em">LEGEND</text>
+      <rect x="180" y="376" width="24" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="212" y="386" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif">Common default (recursive)</text>
+      <text x="440" y="386" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif" font-style="italic">Same contract text, five different chunk boundaries.</text>
+    </svg>
+  </div>
+</body>
+</html>

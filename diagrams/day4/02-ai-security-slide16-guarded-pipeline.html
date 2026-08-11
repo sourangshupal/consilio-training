@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A guarded RAG/Agent pipeline &middot; Flowchart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --color-paper:#f5f5f5; --color-ink:#2d3142; --color-muted:#4f5d75; --color-accent:#eb6c36;
+      --font-sans:'Geist',system-ui,sans-serif; --font-serif:'Instrument Serif',serif; --font-mono:'Geist Mono',ui-monospace,monospace; }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:3rem 2rem; }
+    .frame { max-width:1200px; width:100%; }
+    .eyebrow { font-family:var(--font-mono); font-size:.66rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--color-muted); margin-bottom:.5rem; }
+    h1 { font-family:var(--font-serif); font-size:clamp(1.5rem,2.4vw + .75rem,2rem); font-weight:400; letter-spacing:-.02em; line-height:1.15; margin-bottom:1.5rem; }
+    svg { width:100%; min-width:900px; display:block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Flowchart &middot; Diagram Design</p>
+    <h1>Putting it together &mdash; a guarded RAG/agent pipeline</h1>
+    <svg viewBox="0 0 1000 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/></pattern>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+
+      <path d="M100,76 H110" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M228,76 H238" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M366,76 H376" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M494,76 H504" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M622,76 H632" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M760,76 H770" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <path d="M898,76 H908" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+      <rect x="10" y="48" width="90" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="10" y="48" width="90" height="56" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="55" y="80" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">User Input</text>
+
+      <rect x="110" y="48" width="118" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="110" y="48" width="118" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="169" y="80" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Input Guards</text>
+
+      <rect x="238" y="48" width="128" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="238" y="48" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="302" y="74" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Retrieval</text>
+      <text x="302" y="88" fill="#4f5d75" font-size="7" font-family="'Geist Mono',monospace" text-anchor="middle">untrusted flagged</text>
+
+      <rect x="366" y="48" width="128" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="366" y="48" width="128" height="56" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <text x="430" y="80" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">LLM Generation</text>
+
+      <rect x="494" y="48" width="128" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="494" y="48" width="128" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="558" y="80" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Output Guards</text>
+
+      <rect x="622" y="48" width="138" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="622" y="48" width="138" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="691" y="80" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Tool-Call Filtering</text>
+
+      <rect x="760" y="48" width="138" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="760" y="48" width="138" height="56" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="829" y="72" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Human-in-the-Loop</text>
+      <text x="829" y="86" fill="#4f5d75" font-size="7" font-family="'Geist Mono',monospace" text-anchor="middle">high-risk actions only</text>
+
+      <rect x="908" y="48" width="82" height="56" rx="28" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="949" y="72" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Final</text>
+      <text x="949" y="84" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Response</text>
+
+      <text x="500" y="150" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif" font-style="italic" text-anchor="middle">Guards sit at both boundaries &mdash; what comes in and what goes out are checked independently.</text>
+    </svg>
+  </div>
+</body>
+</html>

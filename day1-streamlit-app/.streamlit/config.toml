@@ -1,0 +1,46 @@
+[theme]
+baseRadius = "8px"
+buttonRadius = "8px"
+showWidgetBorder = true
+showSidebarBorder = true
+baseFontSize = 15
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+headingFont = "'Source Serif 4':https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&display=swap"
+
+[theme.light]
+primaryColor = "#0F4C81"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f4f6f8"
+textColor = "#1a2233"
+linkColor = "#0F4C81"
+borderColor = "#dbe1e8"
+greenColor = "#1a7f37"
+orangeColor = "#b8860b"
+redColor = "#cf222e"
+blueColor = "#0F4C81"
+violetColor = "#6f42c1"
+
+[theme.dark]
+primaryColor = "#D4AF37"
+backgroundColor = "#0e1621"
+secondaryBackgroundColor = "#16202e"
+textColor = "#e8ecf1"
+linkColor = "#D4AF37"
+borderColor = "#2a3648"
+greenColor = "#3fb950"
+orangeColor = "#d4af37"
+redColor = "#f85149"
+blueColor = "#58a6ff"
+violetColor = "#a371f7"
+
+[theme.light.sidebar]
+backgroundColor = "#f4f6f8"
+secondaryBackgroundColor = "#e9edf2"
+borderColor = "#dbe1e8"
+primaryColor = "#0F4C81"
+
+[theme.dark.sidebar]
+backgroundColor = "#0a0f17"
+secondaryBackgroundColor = "#131b27"
+borderColor = "#2a3648"
+primaryColor = "#D4AF37"

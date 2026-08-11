@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vLLM PagedAttention &middot; Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --color-paper:#f5f5f5; --color-ink:#2d3142; --color-muted:#4f5d75; --color-accent:#eb6c36;
+      --font-sans:'Geist',system-ui,sans-serif; --font-serif:'Instrument Serif',serif; --font-mono:'Geist Mono',ui-monospace,monospace; }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:3rem 2rem; }
+    .frame { max-width:1200px; width:100%; }
+    .eyebrow { font-family:var(--font-mono); font-size:.66rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--color-muted); margin-bottom:.5rem; }
+    h1 { font-family:var(--font-serif); font-size:clamp(1.5rem,2.4vw + .75rem,2rem); font-weight:400; letter-spacing:-.02em; line-height:1.15; margin-bottom:1.5rem; }
+    svg { width:100%; min-width:900px; display:block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Architecture &middot; Diagram Design</p>
+    <h1>vLLM &mdash; why PagedAttention is fast</h1>
+    <svg viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/></pattern>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+
+      <rect x="48" y="112" width="420" height="300" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <rect x="130" y="116" width="256" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="258" y="125" fill="rgba(45,49,66,0.40)" font-size="7" font-family="'Geist Mono',monospace" text-anchor="middle" letter-spacing="0.14em">ONE CONTIGUOUS BUFFER PER SEQUENCE</text>
+
+      <rect x="520" y="112" width="420" height="300" rx="8" fill="rgba(235,108,54,0.03)" stroke="rgba(235,108,54,0.20)" stroke-width="0.8"/>
+      <rect x="640" y="116" width="200" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="740" y="125" fill="#eb6c36" font-size="7" font-family="'Geist Mono',monospace" text-anchor="middle" letter-spacing="0.14em">PAGEDATTENTION (VLLM)</text>
+
+      <!-- Traditional: one reserved buffer, mostly wasted -->
+      <rect x="88" y="152" width="340" height="220" rx="6" fill="#f5f5f5"/>
+      <rect x="88" y="152" width="340" height="220" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="96" y="160" width="324" height="88" fill="rgba(45,49,66,0.04)"/>
+      <text x="258" y="200" fill="#4f5d75" font-size="10" font-family="'Geist Mono',monospace" text-anchor="middle">reserved, never used</text>
+      <line x1="96" y1="248" x2="420" y2="248" stroke="rgba(45,49,66,0.15)" stroke-width="0.8"/>
+      <rect x="96" y="248" width="324" height="116" fill="rgba(45,49,66,0.09)"/>
+      <text x="258" y="308" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">actual KV tokens</text>
+      <text x="258" y="392" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle" letter-spacing="0.06em">sized for worst-case sequence length</text>
+
+      <!-- vLLM: block table + scattered pages -->
+      <rect x="600" y="152" width="280" height="48" rx="6" fill="#f5f5f5"/>
+      <rect x="600" y="152" width="280" height="48" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="740" y="180" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">Block table</text>
+
+      <path d="M660,200 V232" fill="none" stroke="#eb6c36" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-accent)"/>
+      <path d="M712,200 V232 H760" fill="none" stroke="#eb6c36" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-accent)"/>
+      <path d="M768,200 V232 H840" fill="none" stroke="#eb6c36" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-accent)"/>
+      <path d="M820,200 V296 H660" fill="none" stroke="#eb6c36" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-accent)"/>
+
+      <rect x="620" y="232" width="80" height="48" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="660" y="260" fill="#2d3142" font-size="9" font-family="'Geist Mono',monospace" text-anchor="middle">PAGE 0</text>
+
+      <rect x="800" y="232" width="80" height="48" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="840" y="260" fill="#2d3142" font-size="9" font-family="'Geist Mono',monospace" text-anchor="middle">PAGE 1</text>
+
+      <rect x="620" y="296" width="80" height="48" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="660" y="324" fill="#2d3142" font-size="9" font-family="'Geist Mono',monospace" text-anchor="middle">PAGE 2</text>
+
+      <rect x="740" y="332" width="80" height="48" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="780" y="360" fill="#2d3142" font-size="9" font-family="'Geist Mono',monospace" text-anchor="middle">PAGE 3</text>
+
+      <text x="740" y="404" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle" letter-spacing="0.06em">non-contiguous, allocated on demand</text>
+
+      <line x1="40" y1="440" x2="960" y2="440" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <text x="40" y="456" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.18em">LEGEND</text>
+      <rect x="180" y="448" width="24" height="12" rx="2" fill="rgba(45,49,66,0.04)" stroke="#2d3142" stroke-width="1"/>
+      <text x="212" y="458" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif">Wasted capacity</text>
+      <line x1="380" y1="454" x2="408" y2="454" stroke="#eb6c36" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-accent)"/>
+      <text x="416" y="458" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif">Page mapping</text>
+      <text x="580" y="458" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif" font-style="italic">Fixed-size pages let vLLM pack many sequences into the same VRAM.</text>
+    </svg>
+  </div>
+</body>
+</html>

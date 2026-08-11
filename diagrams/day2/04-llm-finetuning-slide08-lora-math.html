@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LoRA, the math &middot; Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --color-paper:#f5f5f5; --color-ink:#2d3142; --color-muted:#4f5d75; --color-accent:#eb6c36;
+      --font-sans:'Geist',system-ui,sans-serif; --font-serif:'Instrument Serif',serif; --font-mono:'Geist Mono',ui-monospace,monospace; }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:3rem 2rem; }
+    .frame { max-width:1200px; width:100%; }
+    .eyebrow { font-family:var(--font-mono); font-size:.66rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--color-muted); margin-bottom:.5rem; }
+    h1 { font-family:var(--font-serif); font-size:clamp(1.5rem,2.4vw + .75rem,2rem); font-weight:400; letter-spacing:-.02em; line-height:1.15; margin-bottom:1.5rem; }
+    svg { width:100%; min-width:900px; display:block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Architecture &middot; Diagram Design</p>
+    <h1>LoRA &mdash; the low-rank update, in matrices</h1>
+    <svg viewBox="0 0 1000 360" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/></pattern></defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+
+      <text x="220" y="200" fill="#2d3142" font-size="24" font-family="'Geist Mono',monospace" text-anchor="middle">+</text>
+      <text x="440" y="200" fill="#2d3142" font-size="24" font-family="'Geist Mono',monospace" text-anchor="middle">=</text>
+
+      <!-- W: frozen -->
+      <rect x="60" y="100" width="140" height="140" rx="6" fill="#f5f5f5"/>
+      <rect x="60" y="100" width="140" height="140" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.35)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="130" y="164" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">W</text>
+      <text x="130" y="184" fill="#4f5d75" font-size="9" font-family="'Geist Mono',monospace" text-anchor="middle">d &times; d</text>
+      <text x="130" y="228" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle" letter-spacing="0.08em">FROZEN</text>
+
+      <!-- Delta W: trainable low-rank -->
+      <rect x="260" y="100" width="140" height="140" rx="6" fill="#f5f5f5"/>
+      <rect x="260" y="100" width="140" height="140" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="330" y="150" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">&Delta;W</text>
+      <text x="330" y="170" fill="#4f5d75" font-size="9" font-family="'Geist Mono',monospace" text-anchor="middle">= B &middot; A</text>
+      <text x="330" y="188" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono',monospace" text-anchor="middle">B: d&times;r &middot; A: r&times;d</text>
+      <text x="330" y="228" fill="#eb6c36" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle" letter-spacing="0.08em">TRAINABLE &middot; r &lt;&lt; d</text>
+
+      <!-- W': updated -->
+      <rect x="480" y="100" width="140" height="140" rx="6" fill="#f5f5f5"/>
+      <rect x="480" y="100" width="140" height="140" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="550" y="164" fill="#2d3142" font-size="16" font-weight="600" font-family="'Geist',sans-serif" text-anchor="middle">W&prime;</text>
+      <text x="550" y="184" fill="#4f5d75" font-size="9" font-family="'Geist Mono',monospace" text-anchor="middle">d &times; d</text>
+      <text x="550" y="228" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" text-anchor="middle" letter-spacing="0.08em">MERGED WEIGHT</text>
+
+      <line x1="40" y1="284" x2="960" y2="284" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <text x="40" y="300" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.18em">LEGEND</text>
+      <rect x="180" y="292" width="24" height="12" rx="2" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.35)" stroke-width="1"/>
+      <text x="212" y="302" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif">Frozen (no gradient)</text>
+      <rect x="420" y="292" width="24" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="452" y="302" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif">Trainable (low-rank)</text>
+      <text x="660" y="302" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif" font-style="italic">Only B and A ever get a gradient update.</text>
+    </svg>
+  </div>
+</body>
+</html>

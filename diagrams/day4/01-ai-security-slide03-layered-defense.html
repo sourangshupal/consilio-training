@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The layered defense model &middot; Layer stack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --color-paper:#f5f5f5; --color-ink:#2d3142; --color-muted:#4f5d75; --color-accent:#eb6c36;
+      --font-sans:'Geist',system-ui,sans-serif; --font-serif:'Instrument Serif',serif; --font-mono:'Geist Mono',ui-monospace,monospace; }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:3rem 2rem; }
+    .frame { max-width:1200px; width:100%; }
+    .eyebrow { font-family:var(--font-mono); font-size:.66rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--color-muted); margin-bottom:.5rem; }
+    h1 { font-family:var(--font-serif); font-size:clamp(1.5rem,2.4vw + .75rem,2rem); font-weight:400; letter-spacing:-.02em; line-height:1.15; margin-bottom:1.5rem; }
+    svg { width:100%; min-width:900px; display:block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Layer stack &middot; Diagram Design</p>
+    <h1>Guardrails &mdash; the layered defense model</h1>
+    <svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/></pattern></defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+
+      <text x="60" y="68" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.18em">CHECKED FIRST</text>
+      <line x1="80" y1="80" x2="80" y2="440" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <polygon points="76,80 84,80 80,72" fill="#4f5d75"/>
+      <text x="60" y="456" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.18em">CHECKED LAST</text>
+
+      <line x1="120" y1="80" x2="960" y2="80" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <line x1="120" y1="440" x2="960" y2="440" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+
+      <rect x="120" y="80" width="840" height="60" fill="rgba(235,108,54,0.08)"/>
+      <rect x="120" y="80" width="840" height="60" fill="none" stroke="#eb6c36" stroke-width="1"/>
+      <text x="140" y="114" fill="#eb6c36" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.14em" font-weight="600">L1</text>
+      <text x="260" y="116" fill="#2d3142" font-size="15" font-weight="600" font-family="'Geist',sans-serif">Prompt Injection</text>
+      <text x="940" y="116" fill="#eb6c36" font-size="9.5" font-family="'Geist Mono',monospace" text-anchor="end" letter-spacing="0.06em">catches it before anything runs</text>
+
+      <rect x="120" y="140" width="840" height="60" fill="#ffffff"/>
+      <line x1="120" y1="200" x2="960" y2="200" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="140" y="174" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.14em">L2</text>
+      <text x="260" y="176" fill="#2d3142" font-size="15" font-weight="600" font-family="'Geist',sans-serif">Jailbreak Prevention</text>
+      <text x="940" y="176" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono',monospace" text-anchor="end" letter-spacing="0.06em">role-play &amp; DAN-style bypasses</text>
+
+      <rect x="120" y="200" width="840" height="60" fill="#f5f5f5"/>
+      <line x1="120" y1="260" x2="960" y2="260" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="140" y="234" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.14em">L3</text>
+      <text x="260" y="236" fill="#2d3142" font-size="15" font-weight="600" font-family="'Geist',sans-serif">PII Filtering</text>
+      <text x="940" y="236" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono',monospace" text-anchor="end" letter-spacing="0.06em">names, IDs, financial data</text>
+
+      <rect x="120" y="260" width="840" height="60" fill="#ececec"/>
+      <line x1="120" y1="320" x2="960" y2="320" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="140" y="294" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.14em">L4</text>
+      <text x="260" y="296" fill="#2d3142" font-size="15" font-weight="600" font-family="'Geist',sans-serif">Toxicity Filtering</text>
+      <text x="940" y="296" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono',monospace" text-anchor="end" letter-spacing="0.06em">hate, harassment, self-harm</text>
+
+      <rect x="120" y="320" width="840" height="60" fill="#f5f5f5"/>
+      <line x1="120" y1="380" x2="960" y2="380" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="140" y="354" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.14em">L5</text>
+      <text x="260" y="356" fill="#2d3142" font-size="15" font-weight="600" font-family="'Geist',sans-serif">Tool-Call Filtering</text>
+      <text x="940" y="356" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono',monospace" text-anchor="end" letter-spacing="0.06em">blocks unsafe tool invocations</text>
+
+      <rect x="120" y="380" width="840" height="60" fill="#ececec"/>
+      <text x="140" y="414" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.14em">L6</text>
+      <text x="260" y="416" fill="#2d3142" font-size="15" font-weight="600" font-family="'Geist',sans-serif">Retrieval Poisoning Defense</text>
+      <text x="940" y="416" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono',monospace" text-anchor="end" letter-spacing="0.06em">flags untrusted retrieved content</text>
+
+      <text x="120" y="476" fill="#4f5d75" font-size="8" font-family="'Geist Mono',monospace" letter-spacing="0.18em">FOCAL LAYER</text>
+      <text x="240" y="476" fill="#4f5d75" font-size="8.5" font-family="'Geist',sans-serif" font-style="italic">A single layer stops nothing on its own &mdash; the model is the compounding effect of all six.</text>
+    </svg>
+  </div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KV cache vs. full recompute &middot; Flowchart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Flowchart &middot; Diagram Design</p>
+    <h1>KV cache vs. full recompute across generation steps</h1>
+
+    <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/>
+          </pattern>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+        <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+
+        <!-- Column tags -->
+        <text x="300" y="128" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">NO CACHE &middot; FULL RECOMPUTE</text>
+        <text x="700" y="128" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">WITH KV CACHE</text>
+
+        <!-- Arrows -->
+        <path d="M440,88 V108 H300 V140" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M560,88 V108 H700 V140" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <path d="M300,216 V236" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M300,312 V332" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <path d="M700,216 V236" fill="none" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+        <path d="M700,312 V332" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+        <!-- Start -->
+        <rect x="420" y="40" width="160" height="48" rx="24" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <text x="500" y="68" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Prompt [t0]</text>
+
+        <!-- Left column: no cache -->
+        <rect x="160" y="140" width="280" height="76" rx="6" fill="#f5f5f5"/>
+        <rect x="160" y="140" width="280" height="76" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="300" y="168" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Step 1 &middot; recompute all</text>
+        <text x="300" y="184" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">attend over [t0, t1]</text>
+        <text x="300" y="198" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">2 tokens re-processed</text>
+
+        <rect x="160" y="236" width="280" height="76" rx="6" fill="#f5f5f5"/>
+        <rect x="160" y="236" width="280" height="76" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="300" y="264" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Step 2 &middot; recompute all</text>
+        <text x="300" y="280" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">attend over [t0..t2]</text>
+        <text x="300" y="294" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">3 tokens re-processed</text>
+
+        <rect x="160" y="332" width="280" height="76" rx="6" fill="#f5f5f5"/>
+        <rect x="160" y="332" width="280" height="76" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="300" y="360" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Step 3 &middot; recompute all</text>
+        <text x="300" y="376" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">attend over [t0..t3]</text>
+        <text x="300" y="390" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">4 tokens re-processed &middot; O(n&sup2;)</text>
+
+        <!-- Right column: KV cache -->
+        <rect x="560" y="140" width="280" height="76" rx="6" fill="#f5f5f5"/>
+        <rect x="560" y="140" width="280" height="76" rx="6" fill="rgba(235,108,54,0.05)" stroke="#eb6c36" stroke-width="1"/>
+        <text x="700" y="168" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Step 1 &middot; cache K, V</text>
+        <text x="700" y="184" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">compute new token only</text>
+        <text x="700" y="198" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cache size: 1 &rarr; 2</text>
+
+        <rect x="560" y="236" width="280" height="76" rx="6" fill="#f5f5f5"/>
+        <rect x="560" y="236" width="280" height="76" rx="6" fill="rgba(235,108,54,0.05)" stroke="#eb6c36" stroke-width="1"/>
+        <text x="700" y="264" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Step 2 &middot; append + reuse</text>
+        <text x="700" y="280" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">compute new token only</text>
+        <text x="700" y="294" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cache size: 2 &rarr; 3</text>
+
+        <rect x="560" y="332" width="280" height="76" rx="6" fill="#f5f5f5"/>
+        <rect x="560" y="332" width="280" height="76" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+        <text x="700" y="360" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Step 3 &middot; append + reuse</text>
+        <text x="700" y="376" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">compute new token only</text>
+        <text x="700" y="390" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cache size: 3 &rarr; 4 &middot; O(1) per step</text>
+
+        <!-- Legend -->
+        <line x1="40" y1="440" x2="960" y2="440" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <text x="40" y="456" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+
+        <rect x="40" y="468" width="24" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="72" y="478" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Full recompute (cost grows)</text>
+
+        <rect x="320" y="468" width="24" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+        <text x="352" y="478" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Cached step (cost constant)</text>
+
+        <text x="620" y="478" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif" font-style="italic">Same generation, two very different per-step costs.</text>
+      </svg>
+  </div>
+</body>
+</html>
