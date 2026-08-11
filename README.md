@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚖️ Counsilo — 4-Day AI Training for Law Firms
+# ⚖️ Consilio — 4-Day AI Training for Law Firms
 
 **Hands-on curriculum for teaching practicing lawyers how modern AI actually works —
 from attention mechanisms to agentic RAG to EU AI Act compliance.**
@@ -19,7 +19,7 @@ from attention mechanisms to agentic RAG to EU AI Act compliance.**
 
 ## 📖 About
 
-This repo is the full working set behind **Counsilo's 4-Day AI Training** — an 8-hour-a-day
+This repo is the full working set behind **Consilio's 4-Day AI Training** — an 8-hour-a-day
 program that takes a **law firm audience** from "what is a transformer" to "how do I build
 and evaluate an agentic RAG pipeline on our contracts, safely and compliantly."
 

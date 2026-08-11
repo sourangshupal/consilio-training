@@ -13,7 +13,7 @@ init_session()
 
 def home():
     st.title("⚖️ Day 1 — AI Foundations")
-    st.caption("Counsilo 4-Day AI Training — interactive companion to the day1 notebooks")
+    st.caption("Consilio 4-Day AI Training — interactive companion to the day1 notebooks")
     st.space("small")
 
     modules = [
@@ -50,7 +50,7 @@ pages = [
 
 with st.sidebar:
     st.markdown("### ⚖️ Day 1 — AI Foundations")
-    st.caption("Counsilo 4-Day AI Training")
+    st.caption("Consilio 4-Day AI Training")
 
     with st.container(border=True):
         st.markdown(":material/key: **LLM provider**")
