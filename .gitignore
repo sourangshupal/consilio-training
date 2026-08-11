@@ -1,0 +1,30 @@
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# Streamlit apps (any dir, incl. archive)
+.streamlit/secrets.toml
+
+# Env / secrets
+.env
+.env.*
+*.env.local
+
+# uv
+uv.lock.bak
+.uv-cache/
+
+# Editors
+.vscode/
+.idea/
+archive
+CLAUDE.md
+AGENTS.md
+.agents/
+.claude/
+.commandcode/
