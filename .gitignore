@@ -28,3 +28,5 @@ AGENTS.md
 .agents/
 .claude/
 .commandcode/
+day1-notebooks/03_finetuning_distilgpt2_contract_language.ipynb
+day1-notebooks/03b_finetuning_distilgpt2_real_datasets.ipynb
