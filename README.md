@@ -1,8 +1,8 @@
 <div align="center">
 
-# ⚖️ Consilio — 4-Day AI Training for Law Firms
+# ⚖️ Consilio — 4-Day AI Training
 
-**Hands-on curriculum for teaching practicing lawyers how modern AI actually works —
+**Hands-on curriculum for teaching how modern AI actually works —
 from attention mechanisms to agentic RAG to EU AI Act compliance.**
 
 [![Days](https://img.shields.io/badge/days-4-6366F1?style=flat-square)](#-curriculum)
