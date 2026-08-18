@@ -7,7 +7,7 @@ import streamlit as st
 from src.retriever import dense_retrieve, BM25Retriever, hybrid_rrf
 from src.reranker import rerank
 from src.generator import generate_answer
-from src.llm_router import ask
+from src.llm_router import ask, normalize_label
 from src.query_transforms import SYSTEM_DECOMPOSE, generate_variants, multi_retrieve
 from src.rag_bank import ADAPTIVE_RAG_QUERIES
 from src.state import active_api_key
@@ -52,7 +52,8 @@ Respond with exactly one word: factual, comparison, summary, or complex."""
 
 if st.button("Classify & route", type="primary", icon=":material/play_arrow:", disabled=not (query and api_key)):
     with st.spinner("Classifying query..."):
-        qtype = ask(provider, api_key, query, system=CLASSIFIER_PROMPT, temperature=0.0).strip().lower()
+        raw_qtype = ask(provider, api_key, query, system=CLASSIFIER_PROMPT, temperature=0.0)
+        qtype = normalize_label(raw_qtype, ("factual", "comparison", "summary", "complex"))
 
     type_labels = {
         "factual": "📌 Factual lookup",
@@ -60,7 +61,7 @@ if st.button("Classify & route", type="primary", icon=":material/play_arrow:", d
         "summary": "📝 Summary",
         "complex": "🧩 Complex reasoning",
     }
-    label = type_labels.get(qtype, f"❓ Unknown ({qtype})")
+    label = type_labels.get(qtype, f"❓ Unclassified — raw model output: {raw_qtype.strip()[:80]!r}")
     st.subheader(f"Classification: {label}")
 
     with st.spinner(f"Routing to strategy for '{qtype}' queries..."):
@@ -75,8 +76,7 @@ if st.button("Classify & route", type="primary", icon=":material/play_arrow:", d
             bm25 = BM25Retriever(chunks)
             dense_res = dense_retrieve(query, embed_model, k=8)
             bm25_res = bm25.query(query, k=8)
-            fused = hybrid_rrf(dense_res, bm25_res, k=60)
-            results = [(c, 0.0) for c in fused[:5]]
+            results = hybrid_rrf(dense_res, bm25_res, k=60)[:5]
 
         elif qtype == "summary":
             st.markdown("**Strategy:** Dense retrieval (semantic coverage)")
@@ -92,7 +92,7 @@ if st.button("Classify & route", type="primary", icon=":material/play_arrow:", d
             candidate_chunks = [c for c, _ in candidates]
             results = rerank(query, candidate_chunks, top_k=5)
         else:
-            st.warning(f"Unknown query type '{qtype}', falling back to dense retrieval.")
+            st.warning("Could not classify the query, falling back to dense retrieval.")
             results = dense_retrieve(query, embed_model, k=4)
 
     result_chunks = [r[0] for r in results]

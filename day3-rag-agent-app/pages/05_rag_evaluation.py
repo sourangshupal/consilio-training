@@ -8,7 +8,7 @@ from pathlib import Path
 import streamlit as st
 from src.retriever import dense_retrieve
 from src.generator import generate_answer
-from src.evaluator import run_ragas_evaluation, load_test_questions
+from src.evaluator import references_for, run_ragas_evaluation, load_test_questions
 from src.state import active_api_key
 
 ASSETS = Path(__file__).parent.parent / "assets"
@@ -54,6 +54,16 @@ questions = [q.strip() for q in manual_questions.split("\n") if q.strip()]
 
 k = st.slider("Chunks to retrieve per question", 1, 8, 3)
 
+references = references_for(questions)
+if references is None:
+    st.info(
+        "Context precision and context recall are reference-based — they need a "
+        "ground-truth answer per question. Custom questions have none, so this run "
+        "will report faithfulness and answer relevancy only. Restore the default "
+        "questions to get all four metrics.",
+        icon=":material/info:",
+    )
+
 if st.button("Run RAGAS evaluation", type="primary", icon=":material/play_arrow:", disabled=not api_key):
     answers = []
     contexts_list = []
@@ -73,7 +83,10 @@ if st.button("Run RAGAS evaluation", type="primary", icon=":material/play_arrow:
     status_text.text(f"Computing RAGAS metrics (judge: {provider})...")
 
     try:
-        df = run_ragas_evaluation(questions, answers, contexts_list, provider, api_key, embed_model)
+        df = run_ragas_evaluation(
+            questions, answers, contexts_list, provider, api_key, embed_model,
+            references=references,
+        )
         status_text.empty()
 
         st.subheader(":material/table_chart: Evaluation results")

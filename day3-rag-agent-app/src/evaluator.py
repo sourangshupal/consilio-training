@@ -7,10 +7,37 @@ uses the local sentence-transformers embedding model already loaded for
 retrieval, so evaluation never requires an OpenAI key just to run.
 """
 
-import pandas as pd
-import streamlit as st
+import sys
+import types
 
-from src.rag_bank import EVAL_QUESTIONS
+import pandas as pd
+
+from src.rag_bank import EVAL_QUESTIONS, EVAL_REFERENCES
+
+# Metrics that grade retrieval against a ground-truth answer. RAGAS raises
+# ValueError if they run without a `reference` column, so they are only
+# included when every question has one.
+REFERENCE_METRICS = ("context_precision", "context_recall")
+
+
+def _patch_langchain_community_vertexai() -> None:
+    """ragas 0.4.x imports `langchain_community.chat_models.vertexai`, which
+    langchain-community >= 0.4 deleted. The symbol is only used in an
+    isinstance table for Vertex models this app never builds, so register a
+    stub module rather than pinning the whole LangChain stack back to 0.3."""
+    name = "langchain_community.chat_models.vertexai"
+    if name in sys.modules:
+        return
+    try:
+        __import__(name)
+    except ImportError:
+        stub = types.ModuleType(name)
+
+        class ChatVertexAI:  # noqa: D401 - placeholder, never instantiated
+            """Placeholder for the removed langchain-community ChatVertexAI."""
+
+        stub.ChatVertexAI = ChatVertexAI
+        sys.modules[name] = stub
 
 
 def run_ragas_evaluation(
@@ -20,7 +47,10 @@ def run_ragas_evaluation(
     provider: str,
     api_key: str,
     embedding_model_name: str = "all-MiniLM-L6-v2",
+    references: list[str] | None = None,
 ) -> pd.DataFrame:
+    _patch_langchain_community_vertexai()
+
     from datasets import Dataset
     from ragas import evaluate
     from ragas.llms import LangchainLLMWrapper
@@ -36,19 +66,23 @@ def run_ragas_evaluation(
     from src.llm_router import get_langchain_chat_model
 
     eval_llm = LangchainLLMWrapper(get_langchain_chat_model(provider, api_key, temperature=0.0))
-    eval_embeddings = LangchainEmbeddingsWrapper(HuggingFaceEmbeddings(model_name=f"sentence-transformers/{embedding_model_name}"))
-
-    dataset = Dataset.from_dict(
-        {
-            "user_input": questions,
-            "response": answers,
-            "retrieved_contexts": contexts_list,
-        }
+    eval_embeddings = LangchainEmbeddingsWrapper(
+        HuggingFaceEmbeddings(model_name=f"sentence-transformers/{embedding_model_name}")
     )
 
+    columns = {
+        "user_input": questions,
+        "response": answers,
+        "retrieved_contexts": contexts_list,
+    }
+    metrics = [faithfulness, answer_relevancy]
+    if references and all(r for r in references):
+        columns["reference"] = references
+        metrics += [context_precision, context_recall]
+
     result = evaluate(
-        dataset=dataset,
-        metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
+        dataset=Dataset.from_dict(columns),
+        metrics=metrics,
         llm=eval_llm,
         embeddings=eval_embeddings,
     )
@@ -56,6 +90,12 @@ def run_ragas_evaluation(
     return result.to_pandas()
 
 
-@st.cache_resource
 def load_test_questions() -> list[str]:
-    return EVAL_QUESTIONS
+    return list(EVAL_QUESTIONS)
+
+
+def references_for(questions: list[str]) -> list[str] | None:
+    """Ground-truth answers aligned to `questions`, or None if the user edited
+    the question list so that any question has no reference."""
+    refs = [EVAL_REFERENCES.get(q, "") for q in questions]
+    return refs if all(refs) else None

@@ -185,6 +185,47 @@ EVAL_QUESTIONS = [
     "What happens if a tenant defaults on rent in the commercial lease?",
 ]
 
+# Ground-truth answers for EVAL_QUESTIONS. RAGAS's context_precision and
+# context_recall are reference-based metrics — without a `reference` column
+# evaluate() raises, so every stock eval question needs one here.
+EVAL_REFERENCES = {
+    "What is the governing law of the service agreement?":
+        "The Service Agreement is governed by the laws of the State of Delaware, "
+        "without regard to its conflict of law principles.",
+    "What are the termination conditions in the service agreement?":
+        "Either party may terminate on thirty (30) days written notice, or "
+        "immediately if the other party commits a material breach that remains "
+        "uncured for fifteen (15) days after written notice.",
+    "What are the confidentiality obligations in the NDA?":
+        "The Receiving Party must use Confidential Information solely to evaluate a "
+        "potential business relationship, must not disclose it to third parties "
+        "without prior written consent, and must protect it with the same degree of "
+        "care it uses for its own confidential information, but no less than "
+        "reasonable care.",
+    "How long do confidentiality obligations survive termination in the NDA?":
+        "The confidentiality obligations under Section 3 survive termination for "
+        "three (3) years.",
+    "What is the liability cap in the service agreement?":
+        "Total liability of either party is capped at the fees paid in the preceding "
+        "six (6) months, and neither party is liable for indirect, incidental, or "
+        "consequential damages.",
+    "What is the notice period for the employee to resign?":
+        "The Employee must provide two (2) weeks' written notice of resignation.",
+    "What is the non-compete duration in the employment agreement?":
+        "Twelve (12) months following termination, limited to competing services for "
+        "a direct competitor within the United States.",
+    "What is the base rent in the commercial lease?":
+        "Base rent is $8,500 per month, subject to an annual escalation of three "
+        "percent (3%) or the increase in the Consumer Price Index, whichever is greater.",
+    "How much notice does a tenant need to give to renew the lease?":
+        "At least one hundred eighty (180) days written notice prior to expiration, "
+        "to exercise the option for one additional five (5) year term.",
+    "What happens if a tenant defaults on rent in the commercial lease?":
+        "Failure to pay rent within ten (10) days of the due date is a default; if it "
+        "remains uncured for thirty (30) days after written notice, the Landlord may "
+        "terminate the Lease and pursue all available remedies.",
+}
+
 # --- Clause database for the LangGraph ReAct agent's lookup tool -----------
 CLAUSE_DATABASE = {
     "indemnification": (

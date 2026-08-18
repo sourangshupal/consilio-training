@@ -122,16 +122,13 @@ def hybrid_rrf(
     dense_results: list[tuple[str, float]],
     bm25_results: list[tuple[str, float]],
     k: int = 60,
-) -> list[str]:
-    chunk_to_score = {}
-    chunk_to_idx = {}
+) -> list[tuple[str, float]]:
+    """Reciprocal Rank Fusion. Returns (chunk, rrf_score) pairs, highest first,
+    so callers can display the fused score instead of a placeholder."""
+    chunk_to_score: dict[str, float] = {}
 
-    for rank, (chunk, _) in enumerate(dense_results):
-        chunk_to_score[chunk] = chunk_to_score.get(chunk, 0) + 1 / (k + rank + 1)
-        chunk_to_idx[chunk] = min(chunk_to_idx.get(chunk, len(dense_results)), rank)
+    for results in (dense_results, bm25_results):
+        for rank, (chunk, _) in enumerate(results):
+            chunk_to_score[chunk] = chunk_to_score.get(chunk, 0.0) + 1 / (k + rank + 1)
 
-    for rank, (chunk, _) in enumerate(bm25_results):
-        chunk_to_score[chunk] = chunk_to_score.get(chunk, 0) + 1 / (k + rank + 1)
-
-    sorted_chunks = sorted(chunk_to_score.items(), key=lambda x: x[1], reverse=True)
-    return [c for c, _ in sorted_chunks]
+    return sorted(chunk_to_score.items(), key=lambda x: x[1], reverse=True)

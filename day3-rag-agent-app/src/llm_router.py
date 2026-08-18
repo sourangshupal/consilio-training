@@ -96,3 +96,16 @@ def get_langchain_chat_model(provider: str, api_key: str, temperature: float = 0
         return ChatGroq(model=DEFAULT_MODELS["Groq"], temperature=temperature, api_key=api_key)
 
     raise LLMRouterError(f"Unknown provider: {provider}")
+
+
+def normalize_label(text: str, allowed: tuple[str, ...]) -> str:
+    """Maps a one-word LLM verdict onto `allowed`, tolerating the punctuation,
+    markdown, and preamble models add ("**Correct.**", "Answer: complex").
+    Returns "" when no allowed label appears. Used by the CRAG grader and the
+    Adaptive RAG classifier, which both prompt for a single bare word.
+    """
+    lowered = text.lower()
+    for label in allowed:
+        if label.lower() in lowered:
+            return label
+    return ""

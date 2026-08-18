@@ -48,14 +48,14 @@ if st.button("Run hybrid RAG", type="primary", icon=":material/play_arrow:", dis
         dense_res = dense_retrieve(query, st.session_state["embedding_model_name"], k=dense_k)
         bm25_res = bm25_retriever.query(query, k=bm25_k)
 
-        fused_chunks = hybrid_rrf(dense_res, bm25_res, k=rrf_k)
+        fused = hybrid_rrf(dense_res, bm25_res, k=rrf_k)
         # Rerank a candidate pool larger than rerank_k so the cross-encoder can
         # actually promote chunks RRF ranked lower — truncating to rerank_k
         # *before* reranking would defeat the point of reranking.
-        candidate_pool = fused_chunks[: max(rerank_k * 3, dense_k, bm25_k)]
+        candidate_pool = fused[: max(rerank_k * 3, dense_k, bm25_k)]
 
     with st.spinner("Reranking..."):
-        reranked = rerank(query, candidate_pool, top_k=rerank_k)
+        reranked = rerank(query, [c for c, _ in candidate_pool], top_k=rerank_k)
 
     with st.spinner("Generating answer..."):
         answer = generate_answer(query, [r[0] for r in reranked], provider, api_key)
@@ -65,7 +65,7 @@ if st.button("Run hybrid RAG", type="primary", icon=":material/play_arrow:", dis
     tabs = st.tabs(["Dense-only", "BM25-only", "Hybrid (RRF)", "After reranking"])
     for tab, results, label in zip(
         tabs,
-        [dense_res, bm25_res, list(zip(candidate_pool, [0.0] * len(candidate_pool))), reranked],
+        [dense_res, bm25_res, candidate_pool, reranked],
         ["Dense", "BM25", "Hybrid (RRF)", "Reranked"],
     ):
         with tab:

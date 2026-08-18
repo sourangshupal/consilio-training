@@ -8,7 +8,7 @@ from pathlib import Path
 import streamlit as st
 from src.retriever import dense_retrieve
 from src.generator import generate_answer
-from src.llm_router import ask
+from src.llm_router import ask, normalize_label
 from src.rag_bank import CRAG_QUERIES
 from src.state import active_api_key
 
@@ -99,13 +99,17 @@ with tab2:
         grades = []
         with st.spinner("Grading chunks..."):
             for chunk in chunks:
-                grade = ask(
+                raw_grade = ask(
                     provider, api_key,
                     f"Query: {query}\n\nRetrieved text:\n{chunk[:1000]}",
                     system="Grade whether this retrieved text is relevant to answering the query. "
                            "Respond with exactly one word: Correct, Ambiguous, or Incorrect.",
                     temperature=0.0,
-                ).strip()
+                )
+                # Models routinely answer "**Correct.**" or "Grade: Correct" —
+                # an exact string compare would grade every chunk Unknown and
+                # push the router into the all-incorrect fallback.
+                grade = normalize_label(raw_grade, ("Incorrect", "Correct", "Ambiguous")) or "Unknown"
                 grades.append(grade)
 
         st.subheader(":material/checklist: Chunk grading")
