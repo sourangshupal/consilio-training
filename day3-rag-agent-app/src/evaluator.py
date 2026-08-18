@@ -85,6 +85,9 @@ def run_ragas_evaluation(
         metrics=metrics,
         llm=eval_llm,
         embeddings=eval_embeddings,
+        # Default is False, which turns every judge failure into a silent NaN
+        # column — the caller sees an all-NaN table with no clue why.
+        raise_exceptions=True,
     )
 
     return result.to_pandas()
@@ -99,3 +102,27 @@ def references_for(questions: list[str]) -> list[str] | None:
     the question list so that any question has no reference."""
     refs = [EVAL_REFERENCES.get(q, "") for q in questions]
     return refs if all(refs) else None
+
+
+def check_judge_llm(provider: str, api_key: str) -> str | None:
+    """One cheap round-trip to the judge model before the eval loop spends
+    real calls on generation. Returns an error message, or None if it works.
+
+    The judge goes through LangChain (get_langchain_chat_model), not the plain
+    SDK path used for generation, so it can fail on its own — a bad model id,
+    a key without access, or a provider that rejects the request shape.
+    """
+    _patch_langchain_community_vertexai()
+
+    from src.llm_router import get_langchain_chat_model
+
+    try:
+        response = get_langchain_chat_model(provider, api_key, temperature=0.0).invoke(
+            "Reply with the single word: OK"
+        )
+    except Exception as exc:  # noqa: BLE001 - surface any provider/SDK error verbatim
+        return f"{type(exc).__name__}: {exc}"
+
+    if not str(getattr(response, "content", "")).strip():
+        return "Judge model returned an empty response."
+    return None

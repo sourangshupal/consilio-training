@@ -7,8 +7,8 @@ one place.
 """
 
 DEFAULT_MODELS = {
-    "OpenAI": "gpt-5.6-luna",
-    "Gemini": "gemini-3.6-flash",
+    "OpenAI": "gpt-4o-mini",
+    "Gemini": "gemini-2.5-flash",
     "Groq": "llama-3.3-70b-versatile",
 }
 

@@ -8,7 +8,7 @@ from pathlib import Path
 import streamlit as st
 from src.retriever import dense_retrieve
 from src.generator import generate_answer
-from src.evaluator import references_for, run_ragas_evaluation, load_test_questions
+from src.evaluator import check_judge_llm, references_for, run_ragas_evaluation, load_test_questions
 from src.state import active_api_key
 
 ASSETS = Path(__file__).parent.parent / "assets"
@@ -65,6 +65,18 @@ if references is None:
     )
 
 if st.button("Run RAGAS evaluation", type="primary", icon=":material/play_arrow:", disabled=not api_key):
+    # Preflight the judge before spending a generation call per question — the
+    # judge runs through LangChain, so it can fail even when generation works.
+    with st.spinner(f"Checking the {provider} judge model..."):
+        judge_error = check_judge_llm(provider, api_key)
+    if judge_error:
+        st.error(
+            f"The {provider} judge model is not reachable, so every metric would come "
+            f"back empty. Fix this first:\n\n`{judge_error}`",
+            icon=":material/error:",
+        )
+        st.stop()
+
     answers = []
     contexts_list = []
 
