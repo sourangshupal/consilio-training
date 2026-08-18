@@ -75,6 +75,17 @@ if st.button("Run RAGAS evaluation", type="primary", icon=":material/play_arrow:
             f"back empty. Fix this first:\n\n`{judge_error}`",
             icon=":material/error:",
         )
+        if "model_not_found" in judge_error or "does not exist" in judge_error:
+            from src.llm_router import DEFAULT_MODELS, list_models
+
+            st.caption(
+                f"`DEFAULT_MODELS['{provider}']` is currently "
+                f"`{DEFAULT_MODELS[provider]}`. Model ids your key can use:"
+            )
+            try:
+                st.code("\n".join(list_models(provider, api_key)), language="text")
+            except Exception as exc:  # noqa: BLE001
+                st.caption(f"Could not fetch the model list: {exc}")
         st.stop()
 
     answers = []

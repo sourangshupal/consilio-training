@@ -9,7 +9,10 @@ one place.
 DEFAULT_MODELS = {
     "OpenAI": "gpt-4o-mini",
     "Gemini": "gemini-2.5-flash",
-    "Groq": "llama-3.3-70b-versatile",
+    # Groq retires model ids on a rolling basis — llama-3.3-70b-versatile was
+    # removed and 404s. Verified available + tool-calling capable; if this ever
+    # 404s too, the eval page prints the live list for the key (list_models()).
+    "Groq": "openai/gpt-oss-120b",
 }
 
 
@@ -109,3 +112,38 @@ def normalize_label(text: str, allowed: tuple[str, ...]) -> str:
         if label.lower() in lowered:
             return label
     return ""
+
+
+def list_models(provider: str, api_key: str) -> list[str]:
+    """Model ids the given key can actually use. Providers retire ids on a
+    rolling basis, so a hard-coded DEFAULT_MODELS entry goes stale silently —
+    this turns a 404 into a list of what to replace it with.
+    """
+    if not api_key:
+        raise LLMRouterError(f"No API key set for {provider}.")
+
+    try:
+        if provider == "OpenAI":
+            from openai import OpenAI
+
+            return sorted(m.id for m in OpenAI(api_key=api_key).models.list())
+
+        if provider == "Groq":
+            from groq import Groq
+
+            return sorted(m.id for m in Groq(api_key=api_key).models.list().data)
+
+        if provider == "Gemini":
+            from google import genai
+
+            # Keep a reference to the client: models.list() is a lazy pager, and
+            # an inline client gets garbage-collected (and closed) mid-iteration.
+            client = genai.Client(api_key=api_key)
+            return sorted(m.name.removeprefix("models/") for m in client.models.list())
+
+        raise LLMRouterError(f"Unknown provider: {provider}")
+
+    except LLMRouterError:
+        raise
+    except Exception as exc:  # noqa: BLE001 - surface any provider SDK error to the UI
+        raise LLMRouterError(f"Could not list {provider} models: {exc}") from exc
